@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+/* Apply globally */
+body {
+  font-family: 'Lora', serif;
+}
+
+/* Or apply to a specific class */
+.lora-text {
+  font-family: 'Lora', serif;
+}
