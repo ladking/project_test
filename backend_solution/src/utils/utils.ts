@@ -7,6 +7,8 @@ export function generateJWT(payload: object, key: string, expiresIn: '24h' | '7d
       return { error:"invalid payload provided"}
     }
 
+    console.log(key, "key")
+
     if(!expiresIn){
       expiresIn = '24h'
     }
@@ -19,6 +21,13 @@ export function generateJWT(payload: object, key: string, expiresIn: '24h' | '7d
     }
   }
 
-export async function validateJWT(token: string, secretKey: string){
-    
+  export  function validateJWT(token: string, secretKey: string): {payload?: any, error?: string}{
+      try{
+        const payload = jwt.verify(token, secretKey);
+        return {payload: payload}
+      } catch(err){
+        return{
+          error: String(err) ?? 'invalid / expired token'
+        }
+      }
   }

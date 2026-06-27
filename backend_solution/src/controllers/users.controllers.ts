@@ -12,7 +12,6 @@ export class UserController{
         if(!reqBody || !reqBody.email || !reqBody.password){
             return {message:"invalid login credentails"}
         }
-
         const {token, error} = this.userService.authenticateUser(reqBody.email, reqBody.password)
         if(error){
             return {message: error}

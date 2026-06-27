@@ -1,15 +1,20 @@
-import { Controller, Get, Query, Param, Delete } from "@nestjs/common";
+import { Controller,Request, Get, Query, Param, Delete, UseGuards, InternalServerErrorException } from "@nestjs/common";
 import { LoanService } from "src/services/loan.service";
 import type { IHTTPResponse, LoanStatus } from "src/types";
+import { AuthGuard } from "src/middlewares/auth.middleware";
 
-
+@UseGuards(AuthGuard)
 @Controller("loans")
 export class LoanController {
     constructor(private loanService: LoanService) {}
 
     @Get()
-    getLoans(@Query("status") status: LoanStatus): IHTTPResponse{
-        const {data, error} = this.loanService.getLoans("staff", {status: status.toString()})
+    getLoans(@Request() req, @Query("status") status: LoanStatus): IHTTPResponse{
+       let authClaims = req.user
+       if(!authClaims){
+            throw new InternalServerErrorException()
+       }
+        const {data, error} = this.loanService.getLoans(authClaims, {status: status?.toString()})
         if(error){
             return {message:error}
         }
@@ -38,9 +43,13 @@ export class LoanController {
         return {data:data, message:"sucess"}
     }
 
-    @Delete("loanId/delete")
-    deleteLoan(@Param("loadId") loanId: string):IHTTPResponse{
-        const {error} = this.loanService.deleteLoan(loanId, "staff")
+    @Delete(":loanId/delete")
+    deleteLoan(@Request() req, @Param("loadId") loanId: string):IHTTPResponse{
+         let authClaims = req.user
+        if(!authClaims){
+                throw new InternalServerErrorException()
+        }
+        const {error} = this.loanService.deleteLoan(loanId, authClaims?.role)
         if(error){
             return {message:"error"}
         }

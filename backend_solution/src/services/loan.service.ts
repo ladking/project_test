@@ -8,7 +8,11 @@ export class LoanService {
    
     getLoans(userRole: string, filter: {status: string}): {data?: ILoans[], error?: string}{
         let loans: ILoans[]
-        let filteredLoans = this.loans.filter((loan) => loan.status.toLowerCase() == filter.status.toLowerCase())
+        let filteredLoans = this.loans
+
+        if (filter.status){
+            filteredLoans = this.loans.filter((loan) => loan.status.toLowerCase() == filter.status.toLowerCase())
+        }
 
         if(userRole == "staff"){    
             loans = filteredLoans.map(({...data})=>({
