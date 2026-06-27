@@ -22,12 +22,16 @@ export class LoanController {
     }
 
     @Get(":userEmail/get")
-    getUserLoans(@Param("userEmail") userEmail: string):IHTTPResponse{
+    getUserLoans(@Request() req, @Param("userEmail") userEmail: string):IHTTPResponse{
+        let authClaims = req.user
+       if(!authClaims){
+            throw new InternalServerErrorException()
+       }
         if(!userEmail){
             return {message: "provide user email"}
         }
 
-       const {data, error} = this.loanService.getUserLoans(userEmail, "staff")
+       const {data, error} = this.loanService.getUserLoans(userEmail, authClaims?.role)
        if(error){
         return {message:error}
        }
@@ -35,8 +39,12 @@ export class LoanController {
     }
 
     @Get("/expired")
-    getExpiredLoans():IHTTPResponse{
-        const {data, error} = this.loanService.getLoans("staff", {status:"expired"})
+    getExpiredLoans(@Request() req,):IHTTPResponse{
+        let authClaims = req.user
+        if(!authClaims){
+                throw new InternalServerErrorException()
+        }
+        const {data, error} = this.loanService.getExpiredLoans(authClaims?.role)
         if(error){
             return {message:error}
         }
@@ -44,7 +52,7 @@ export class LoanController {
     }
 
     @Delete(":loanId/delete")
-    deleteLoan(@Request() req, @Param("loadId") loanId: string):IHTTPResponse{
+    deleteLoan(@Request() req, @Param("loanId") loanId: string):IHTTPResponse{
          let authClaims = req.user
         if(!authClaims){
                 throw new InternalServerErrorException()
